@@ -8,8 +8,17 @@
 import SwiftUI
 import ComposableArchitecture
 
+private extension ViewStore where State == ParentState, Action == ParentAction {
+    
+    var childIsPresented: Binding<Bool> {
+        binding(
+            get: \.shouldPresentChild,
+            send: ParentAction.popChildView
+        )
+    }
+}
 
-struct AppEnvironment :Equatable {}
+struct AppEnvironment: Equatable {}
 
 struct ContentView: View {
     
@@ -31,9 +40,7 @@ struct ContentView: View {
                     Text("Push via TCA")
                 }
                 )
-                .sheet(isPresented: viewStore.binding(
-                        get: { $0.shouldPresentChild },
-                        send: ParentAction.popChildView),
+                .sheet(isPresented: viewStore.childIsPresented,
                        content: {
                         IfLetStore(
                             store.scope(state: \.childState,
@@ -47,11 +54,13 @@ struct ContentView: View {
     }
 }
 
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView(store: .init(initialState: ParentState(), reducer: mainReducer, environment: AppEnvironment()))
-//    }
-//}
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView(store: .init(initialState: ParentState(),
+                                 reducer: appReducer,
+                                 environment: AppEnvironment()))
+    }
+}
 
 struct ParentState: Equatable {
     var childState: ChildState?
