@@ -13,7 +13,7 @@ private extension ViewStore where State == ParentState, Action == ParentAction {
     var childIsPresented: Binding<Bool> {
         binding(
             get: \.shouldPresentChild,
-            send: ParentAction.popChildView
+            send: { $0 ? .pushChildView : .popChildView }
         )
     }
 }
@@ -32,23 +32,35 @@ struct ContentView: View {
         NavigationView {
             WithViewStore(store) { viewStore in
                 
-                Button(action: {
-                    
-                    viewStore.send(.pushChildView)
-                },
-                label: {
-                    Text("Push via TCA")
+                NavigationLink(
+                  destination: IfLetStore(
+                    self.store.scope(state: \.childState,
+                                     action: ParentAction.childAction),
+                    then: ChildView.init(store:)
+                  ),
+                    isActive: viewStore.childIsPresented
+                ) {
+                  Text("NavigationLink via TCA")
                 }
-                )
-                .sheet(isPresented: viewStore.childIsPresented,
-                       content: {
-                        IfLetStore(
-                            store.scope(state: \.childState,
-                                        action: ParentAction.childAction),
-                            then: ChildView.init
-                        )
-                       }
-                )
+                
+//                Button(action: {
+//                    viewStore.send(.pushChildView)
+//                },
+//                label: {
+//                    Text("Push via TCA")
+//                }
+//                )
+//                .sheet(isPresented: viewStore.childIsPresented,
+//                       content: {
+//                        IfLetStore(
+//                            store.scope(state: \.childState,
+//                                        action: ParentAction.childAction),
+//                            then: ChildView.init
+//                        )
+//                       }
+//                )
+                
+
             }
         }
     }

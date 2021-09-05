@@ -15,17 +15,17 @@ struct ChildView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             NavigationView {
-                Text("Hello")
-                    .navigationBarItems(trailing:
-                                            Button(
-                                                action: {
-                                                   viewStore.send(.popPushedView)
-                                                }, label: {
-                                                    Text("Dismiss Child View")
-                                                }
-                                            )
-                    )
+                Text("Successful push")
             }
+            .navigationBarItems(trailing:
+                                    Button(
+                                        action: {
+                                           viewStore.send(.popPushedView)
+                                        }, label: {
+                                            Text("Dismiss Child View")
+                                        }
+                                    )
+            )
         }
     }
 }
